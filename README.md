@@ -54,3 +54,34 @@ Or to generate a unique token for each record:
     end
 
 Other than that, it just works like a regular CarrierWave adapter.
+
+## Converting a document with Colore
+
+(These examples assumes that `attachment` is a mounted Uploader on the
+`Document` model.)
+
+To convert a file to another format:
+
+    file = Document.find(1234).attachment.file
+    file.convert('txt')
+
+Where `txt` is a Colore conversion action.
+
+To then get the converted version (note that conversion happens
+asynchronously):
+
+    file = Document.find(1234).attachment.file
+    file.format('txt').read
+    => "The quick brown fox..."
+
+You can view all versions and formats as follows:
+
+    file = Document.find(1234).attachment.file
+    file.versions
+    => {"v001" => ["docx", "txt"], "v002"=>["txt", "docx"]}
+
+It defaults to reading the current version, you can also specify the version:
+
+    file = Document.find(1234).attachment.file
+    file.version('v001').format('txt').read
+    => "The slow brown fox..."

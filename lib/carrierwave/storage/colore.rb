@@ -75,11 +75,12 @@ module CarrierWave
         #
         # @param  file [CarrierWave::SanitizedFile]
         def store(new_file)
-          @connection.create_document(
+          response = @connection.create_document(
             doc_id:   @store_path,
             filename: new_file.filename,
             content:  new_file.to_file
           )
+          @filename = response["path"]
         end
 
         # Returns a list of versions and formats on Colore.
@@ -110,14 +111,18 @@ module CarrierWave
 
         # Request a conversion of the file.
         #
-        # @param format String Type to convert to.
-        def convert(format)
-          @connection.request_conversion(
-            doc_id:   @store_path,
-            version:  @version,
-            filename: @filename,
-            action:   format
-          )
+        # @param format       String Type to convert to.
+        # @param callback_url String Callback URL after conversion is complete
+        def convert(format, callback_url = nil)
+          options = {
+            doc_id:       @store_path,
+            version:      @version,
+            filename:     @filename,
+            action:       format,
+            callback_url: callback_url
+          }.compact
+
+          @connection.request_conversion(options)
         end
 
         protected

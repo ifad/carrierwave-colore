@@ -85,3 +85,24 @@ It defaults to reading the current version, you can also specify the version:
     file = Document.find(1234).attachment.file
     file.version('v001').format('txt').read
     => "The slow brown fox..."
+
+## Serving files
+
+For best performance you should use the [Colore Nginx
+module](https://github.com/ifad/colore/tree/e2fa09b303ae370965c8ca0185c252f0dcecbd3c/nginx/ngx_colore_module),
+so files are served  by Nginx rather than your application or Colore
+itself.
+
+You can get the URL of the file to use with this like this:
+
+    url = Document.find(1234).attachment.url
+    => "/document/doccy/1e723575/current/Support.docx"
+
+Here is an example of what you can use in a Rails controller to serve this:
+
+    def show
+      @document = Document.find(params[:id])
+      response['X-Accel-Redirect']    = @document.attachment.url
+      response['Content-Disposition'] = "attachment; filename=#{@document.filename}"
+      render nothing: true
+    end

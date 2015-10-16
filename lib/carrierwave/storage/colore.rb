@@ -125,6 +125,15 @@ module CarrierWave
           @connection.request_conversion(options)
         end
 
+        # Return the Colore URL for this file. This can be used by the client
+        # application and the Colore Nginx plugin to serve the file. See
+        # https://github.com/ifad/colore/blob/e2fa09b303ae370965c8ca0185c252f0dcecbd3c/nginx/colore.nginx.conf#L53-L65
+        #
+        # @return String
+        def url
+          "/" + @connection.send(:url_for, @store_path, @version, @filename)
+        end
+
         protected
 
         def file

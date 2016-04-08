@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.summary        = %q(Carrierwave adapter for Colore services)
   gem.homepage       = ''
 
-  gem.add_dependency 'colore-client', '0.1.4'
+  gem.add_dependency 'colore-client', '>= 0.2.0'
 
   gem.files          = `git ls-files`.split($/)
   gem.test_files     = gem.files.grep %r[^(test|spec|features)]

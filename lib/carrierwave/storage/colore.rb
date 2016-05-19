@@ -131,7 +131,7 @@ module CarrierWave
         #
         # @return String
         def url
-          @connection.path_for(@store_path, @version, @filename)
+          @connection.path_for(@store_path, @filename, @version)
         end
 
         protected

@@ -75,9 +75,16 @@ module CarrierWave
         #
         # @param  file [CarrierWave::SanitizedFile]
         def store(new_file)
+          filename = new_file.filename
+
+          # Strip URL-unfriendly characters if we've got ActiveSupport around
+          if filename.respond_to?(:parameterize)
+            filename = filename.parameterize
+          end
+
           response = @connection.create_document(
             doc_id:   @store_path,
-            filename: new_file.filename,
+            filename: filename,
             content:  new_file.to_file
           )
           @filename = response["path"]

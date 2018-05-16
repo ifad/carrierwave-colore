@@ -1,4 +1,5 @@
 require 'colore-client'
+require 'active_support/inflector'
 
 module CarrierWave
   module Colore

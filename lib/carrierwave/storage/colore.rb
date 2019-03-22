@@ -77,10 +77,10 @@ module CarrierWave
         def store(new_file)
           response = @connection.create_document(
             doc_id:   @store_path,
-            filename: new_file.filename,
+            filename: URI.escape(new_file.filename),
             content:  new_file.to_file
           )
-          @filename = response["path"]
+          @filename = URI.escape(response["path"])
         end
 
         # Returns a list of versions and formats on Colore.

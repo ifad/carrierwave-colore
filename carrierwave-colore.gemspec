@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name           = 'carrierwave-colore'
-  gem.version        = '0.2.2'
+  gem.version        = '0.2.3'
   gem.authors        = [ 'Luca Spiller' ]
   gem.email          = [ 'l.spiller@ifad.org' ]
   gem.description    = %q(Carrierwave adapter for Colore services)

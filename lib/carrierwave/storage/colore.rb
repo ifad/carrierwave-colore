@@ -141,7 +141,7 @@ module CarrierWave
             @connection.get_document(
               doc_id:   @store_path,
               version:  @version,
-              filename: @filename
+              filename: URI.escape(@filename)
             )
           end
         end

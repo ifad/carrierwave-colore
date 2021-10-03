@@ -7,8 +7,7 @@ CarrierWave adapter for the [Colore document storage system](https://github.com/
 Add to your Gemfile:
 
 ```ruby
-gem 'colore-client',      github: 'ifad/colore-client'
-gem 'carrierwave-colore', github: 'ifad/carrierwave-colore'
+gem 'carrierwave-colore', git: 'https://github.com/ifad/carrierwave-colore.git'
 ```
 
 And configure CarrierWave, e.g. in `config/initializers/carrierwave.rb`:
@@ -106,7 +105,7 @@ file.version('v001').format('txt').read
 ## Serving files
 
 For best performance you should use the [Colore Nginx
-module](https://github.com/ifad/colore/tree/e2fa09b303ae370965c8ca0185c252f0dcecbd3c/nginx/ngx_colore_module),
+module](https://github.com/ifad/colore/tree/v1.0.0/nginx/ngx_colore_module),
 so files are served  by Nginx rather than your application or Colore
 itself.
 

@@ -1,17 +1,20 @@
-require 'colore-client'
+# frozen_string_literal: true
 
-module CarrierWave
-  module Colore
-    VERSION = "0.2.3"
-  end
-end
+require 'carrierwave'
+require 'carrierwave/colore/version'
+require 'carrierwave/storage/colore'
 
 CarrierWave::Storage.autoload :Colore, 'carrierwave/storage/colore'
 
-class CarrierWave::Uploader::Base
-  add_config :colore_config
+module CarrierWave
+  module Uploader
+    class Base
+      add_config :colore_config
 
-  configure do |config|
-    config.storage_engines[:colore] = "CarrierWave::Storage::Colore"
+      configure do |config|
+        config.storage_engines[:colore] = 'CarrierWave::Storage::Colore'
+        config.cache_storage = :file
+      end
+    end
   end
 end

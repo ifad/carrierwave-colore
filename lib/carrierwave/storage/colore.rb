@@ -1,3 +1,8 @@
+# frozen_string_literal: true
+
+require 'colore-client'
+require 'carrierwave/support/uri_filename'
+
 module CarrierWave
   module Storage
     class Colore < Abstract
@@ -5,12 +10,16 @@ module CarrierWave
         def connection_cache
           @connection_cache ||= {}
         end
+
+        def clear_connection_cache!
+          @connection_cache = {}
+        end
       end
 
       def connection
         @connection ||= begin
           options = uploader.colore_config
-          self.class.connection_cache[options] ||= ::Colore::Client.new(options)
+          self.class.connection_cache[options] ||= ::Colore::Client.new(**options)
         end
       end
 
@@ -32,6 +41,10 @@ module CarrierWave
         CarrierWave::Storage::Colore::File.new(connection, uploader.store_path, filename)
       end
 
+      def delete_dir!(_path)
+        # NOTE: noop, because there are no directories on Colore
+      end
+
       class File
         # @param connection [Colore::Client]
         # @param store_path [String] Colore `doc_id`
@@ -46,22 +59,24 @@ module CarrierWave
         end
 
         # Duck-type methods for CarrierWave::SanitizedFile
-        def content_type ; end
-        def url          ; end
-        def size         ; end
-        def delete       ; end
+        def content_type; end
+
+        def size; end
+
+        def delete; end
 
         # Returns whether a version exists in Colore.
         #
         # @return boolean
         def exists?
-          if @version == 'current'
-            version = info["current_version"]
-          else
-            version = @version
-          end
+          version =
+            if @version == 'current'
+              info['current_version']
+            else
+              @version
+            end
 
-          info["versions"].has_key?(version)
+          info['versions'].key?(version)
         end
 
         # Read a file from Colore.
@@ -73,23 +88,21 @@ module CarrierWave
 
         # Store a file in Colore.
         #
-        # @param  file [CarrierWave::SanitizedFile]
+        # @param new_file [CarrierWave::SanitizedFile]
         def store(new_file)
           response = @connection.create_document(
-            doc_id:   @store_path,
-            filename: URI.escape(new_file.filename),
-            content:  new_file.to_file
+            doc_id: @store_path,
+            filename: CarrierWave::Support::UriFilename.filename(new_file.filename),
+            content: new_file.to_file
           )
-          @filename = URI.escape(response["path"])
+          @filename = CarrierWave::Support::UriFilename.filename(response['path'])
         end
 
         # Returns a list of versions and formats on Colore.
         #
         # @return array
         def versions
-          info["versions"].inject({}) do |hash, (version, format)|
-            hash[version] = format.keys; hash
-          end
+          info['versions'].transform_values(&:keys)
         end
 
         # Returns a specific version from Colore. If the version doesn't exist
@@ -105,7 +118,7 @@ module CarrierWave
         #
         # @return [CarrierWave::Storage::Colore::File]
         def format(format)
-          filename = ::File.basename(@filename, ::File.extname(@filename)) + "." + format
+          filename = "#{::File.basename(@filename, ::File.extname(@filename))}.#{format}"
           self.class.new(@connection, @store_path, filename, @version)
         end
 
@@ -115,14 +128,14 @@ module CarrierWave
         # @param callback_url String Callback URL after conversion is complete
         def convert(format, callback_url = nil)
           options = {
-            doc_id:       @store_path,
-            version:      @version,
-            filename:     @filename,
-            action:       format,
+            doc_id: @store_path,
+            version: @version,
+            filename: @filename,
+            action: format,
             callback_url: callback_url
           }.compact
 
-          @connection.request_conversion(options)
+          @connection.request_conversion(**options)
         end
 
         # Return the Colore URL for this file. This can be used by the client
@@ -137,21 +150,17 @@ module CarrierWave
         protected
 
         def file
-          @file ||= begin
-            @connection.get_document(
-              doc_id:   @store_path,
-              version:  @version,
-              filename: URI.escape(@filename)
-            )
-          end
+          @file ||= @connection.get_document(
+            doc_id: @store_path,
+            version: @version,
+            filename: CarrierWave::Support::UriFilename.filename(@filename)
+          )
         end
 
         def info
-          @info ||= begin
-            @connection.get_document_info(
-              doc_id:   @store_path
-            )
-          end
+          @info ||= @connection.get_document_info(
+            doc_id: @store_path
+          )
         end
       end
     end

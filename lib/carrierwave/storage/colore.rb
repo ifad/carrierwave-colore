@@ -10,7 +10,7 @@ module CarrierWave
       def connection
         @connection ||= begin
           options = uploader.colore_config
-          self.class.connection_cache[options] ||= ::Colore::Client.new(options)
+          self.class.connection_cache[options] ||= ::Colore::Client.new(**options)
         end
       end
 

@@ -24,7 +24,6 @@ Gem::Specification.new do |spec|
   spec.platform              = Gem::Platform::RUBY
   spec.required_ruby_version = '>= 2.5'
 
-  spec.add_dependency 'addressable', '~> 2.7'
   spec.add_dependency 'carrierwave', '~> 2.2'
   spec.add_dependency 'colore-client', '>= 0.2.0'
 
